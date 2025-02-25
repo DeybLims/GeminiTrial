@@ -1,17 +1,12 @@
 import streamlit as st
-import os
-from dotenv import load_dotenv
 import google.generativeai as genai
 
-# Load environment variables
-load_dotenv()
-
-# Configure the Gemini API with the API key
-api_key = os.getenv("GEMINI_API_KEY")
+# Configure the Gemini API with the API key from Streamlit's secrets
+api_key = st.secrets["GEMINI_API_KEY"]
 if api_key:
     genai.configure(api_key=api_key)
 else:
-    st.error("API key is not set. Check your .env file.")
+    st.error("API key is not set. Check your Streamlit secrets.")
 
 # Initialize the chat session and history if not already in session state
 if 'chat_session' not in st.session_state:
