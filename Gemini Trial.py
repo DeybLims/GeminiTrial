@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configure the Gemini API with the API key
-api_key = os.getenv("AIzaSyDU9I6i3OJZHrKSzLAeSQX9gCej7TDCyRs")
-genai.configure(api_key=api_key)
+api_key = os.getenv("GEMINI_API_KEY")
+genai.configure(api_key=os.getenv("API_KEY"))
 
 # Initialize the chat session and history if not already in session state
 if 'chat_session' not in st.session_state:
