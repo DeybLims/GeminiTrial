@@ -20,7 +20,6 @@ if 'chat_session' not in st.session_state:
 
 def handle_chat(question):
     try:
-        # Modified to remove the context argument if it's not supported
         response = st.session_state.chat_session.send_message(question)
         st.session_state.chat_history.append({"type": "Question", "content": question, "subject": st.session_state.subject})
         st.session_state.chat_history.append({"type": "Response", "content": response.text})
@@ -28,6 +27,7 @@ def handle_chat(question):
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
         return None
+
 
 
 # Streamlit layout and input for user interaction
@@ -66,7 +66,12 @@ for entry in st.session_state.chat_history:
         st.markdown(f"**Bot replied:** {entry['content']}")
 
 # Button to reset the conversation
-if st.button("Reset Conversation"):
-    st.session_state.chat_session = model.start_chat()
-    st.session_state.chat_history = []  # Clear history when resetting
-    st.session_state.subject = None  # Reset subject selection
+# Assuming you're handling subject context manually within your application now
+if st.button("Send"):
+    if user_input:
+        # Call handle_chat with only one argument
+        response = handle_chat(user_input)  # Removed the second argument
+        if response:
+            st.write("Bot:", response.text)
+    else:
+        st.warning("Please type a question or message to send to the quiz bot.")
