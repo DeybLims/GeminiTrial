@@ -1,14 +1,13 @@
 import streamlit as st
 import os
 from dotenv import load_dotenv
+import google.generativeai as genai
 
 # Load environment variables
 load_dotenv()
 
 # Configure the Gemini API with the API key
 api_key = os.getenv("GEMINI_API_KEY")
-# Assuming 'genai' is properly imported and has a method 'configure' and 'GenerativeModel'
-import google.generativeai as genai
 genai.configure(api_key=api_key)
 
 # Initialize the chat session and history if not already in session state
@@ -18,17 +17,16 @@ if 'chat_session' not in st.session_state:
     st.session_state.chat_history = []
     st.session_state.subject = None
 
-def handle_chat(question):
+def handle_chat(question, subject):
     try:
-        response = st.session_state.chat_session.send_message(question)
-        st.session_state.chat_history.append({"type": "Question", "content": question, "subject": st.session_state.subject})
+        # Use the subject to perhaps customize the AI's response or simply pass it along
+        response = st.session_state.chat_session.send_message(question)  # Simulated subject use
+        st.session_state.chat_history.append({"type": "Question", "content": question, "subject": subject})
         st.session_state.chat_history.append({"type": "Response", "content": response.text})
         return response
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
         return None
-
-
 
 # Streamlit layout and input for user interaction
 st.set_page_config(page_title="Quiz Bot")
@@ -38,15 +36,16 @@ st.header("🤖 Quiz Bot")
 subject_option = st.selectbox(
     'Choose a subject for your quiz:',
     ('Select a Subject', 'History', 'Math', 'Science'),
-    index=0
+    index=0,
+    key='subject_select'
 )
 
 if subject_option != 'Select a Subject':
     st.session_state.subject = subject_option
     # User input for the quiz question
-    user_input = st.text_input("Type your quiz question here:")
+    user_input = st.text_input("Type your quiz question here:", key='user_input')
     # Button to send the message
-    if st.button("Send"):
+    if st.button("Send", key='send_button'):
         if user_input:
             response = handle_chat(user_input, st.session_state.subject)
             if response:
@@ -66,12 +65,7 @@ for entry in st.session_state.chat_history:
         st.markdown(f"**Bot replied:** {entry['content']}")
 
 # Button to reset the conversation
-# Assuming you're handling subject context manually within your application now
-if st.button("Send"):
-    if user_input:
-        # Call handle_chat with only one argument
-        response = handle_chat(user_input)  # Removed the second argument
-        if response:
-            st.write("Bot:", response.text)
-    else:
-        st.warning("Please type a question or message to send to the quiz bot.")
+if st.button("Reset Conversation", key='reset_conversation'):
+    st.session_state.chat_session = model.start_chat()
+    st.session_state.chat_history = []  # Clear history when resetting
+    st.session_state.subject = None  # Reset subject selection
