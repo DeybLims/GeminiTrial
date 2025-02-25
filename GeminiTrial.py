@@ -19,14 +19,29 @@ if 'chat_session' not in st.session_state:
         st.error(f"Failed to start chat session: {str(e)}")
 
 def handle_chat(question, subject):
+    # Sample keyword lists for each subject to check relevance
+    subject_keywords = {
+        'History': ['history', 'war', 'empire', 'civilization', 'historical'],
+        'Math': ['math', 'algebra', 'geometry', 'calculus', 'equation'],
+        'Science': ['science', 'biology', 'chemistry', 'physics', 'experiment']
+    }
+
     try:
-        response = st.session_state.chat_session.send_message(question)
+        # Check if the question contains any keyword from the selected subject
+        if any(keyword in question.lower() for keyword in subject_keywords[subject]):
+            response = st.session_state.chat_session.send_message(question)
+        else:
+            # Provide a generic response related to the subject if the question is not relevant
+            response = f"This question does not seem to be about {subject}. However, here's something interesting related to {subject}: "
+            response += "Please ask a question more specific to " + subject + " or check out the latest findings in this field."
+
         st.session_state.chat_history.append({"type": "Question", "content": question, "subject": subject})
-        st.session_state.chat_history.append({"type": "Response", "content": response.text})
+        st.session_state.chat_history.append({"type": "Response", "content": response if isinstance(response, str) else response.text})
         return response
     except Exception as e:
         st.error(f"An error occurred while sending message: {str(e)}")
         return None
+
 
 # Streamlit layout and input for user interaction
 st.set_page_config(page_title="Quiz Bot")
