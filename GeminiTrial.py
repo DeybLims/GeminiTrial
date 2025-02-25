@@ -18,16 +18,17 @@ if 'chat_session' not in st.session_state:
     st.session_state.chat_history = []
     st.session_state.subject = None
 
-def handle_chat(question, subject):
+def handle_chat(question):
     try:
-        # Assuming the API can handle a 'subject' context or tag to tailor the responses
-        response = st.session_state.chat_session.send_message(question, context={"subject": subject})
-        st.session_state.chat_history.append({"type": "Question", "content": question, "subject": subject})
+        # Modified to remove the context argument if it's not supported
+        response = st.session_state.chat_session.send_message(question)
+        st.session_state.chat_history.append({"type": "Question", "content": question, "subject": st.session_state.subject})
         st.session_state.chat_history.append({"type": "Response", "content": response.text})
         return response
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
         return None
+
 
 # Streamlit layout and input for user interaction
 st.set_page_config(page_title="Quiz Bot")
